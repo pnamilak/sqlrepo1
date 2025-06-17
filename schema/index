@@ -1,0 +1,15 @@
+ SELECT schema_name(t.schema_id)                           AS [Schema], 
+       object_name(ps.object_id)                          AS [Table], 
+       i.name                                             AS [Index], 
+       ps.Index_type_desc                                 AS IndexType, 
+       ps.avg_fragmentation_in_percent			    AS [AvgFrag%], 
+       ps.page_count						    AS PageCnt
+FROM     sys.dm_db_index_physical_stats(db_id(db_name()),
+             NULL,NULL,NULL,'LIMITED') ps 
+         INNER JOIN sys.indexes i 
+           ON ps.object_id = i.object_id 
+              AND ps.index_id = i.index_id 
+         INNER JOIN sys.tables t  
+           ON ps.object_id = t.object_id 
+WHERE    t.is_ms_shipped = 0 
+ORDER BY [Schema],  [Table],  [Index]
